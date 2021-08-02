@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { ChonkyActions, ChonkyFileActionData } from 'chonky';
 import Noty from 'noty';
 import 'noty/lib/noty.css';
@@ -12,6 +13,9 @@ ignoredActions.add(ChonkyActions.StartDragNDrop.id);
 ignoredActions.add(ChonkyActions.EndDragNDrop.id);
 ignoredActions.add(ChonkyActions.ChangeSelection.id);
 
+
+
+
 export const showActionNotification = (data: ChonkyFileActionData) => {
     if (ignoredActions.has(data.action.id)) return;
 
@@ -22,12 +26,35 @@ export const showActionNotification = (data: ChonkyFileActionData) => {
 
     if (data.id === ChonkyActions.OpenFiles.id) {
         const fileNames = data.payload.files.map((f) => `<code>${f.name}</code>`);
+        const fileId = data.payload.files.map((f) => f.id);
         if (fileNames.length === 1) {
+            axios.get("http://localhost:28080/doc/downloadFile/"+fileId[0].substr(4))
+            .then((response) => {
+               console.log(response);
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
             textParts.push('You opened a single file:');
         } else {
             textParts.push(`You opened ${fileNames.length} files:`);
         }
         textParts.push(...fileNames);
+    }
+
+    if (data.id === ChonkyActions.DownloadFiles.id) {
+        
+        const fileId = data.action.id;
+        if (fileId.length === 1) {
+            axios.get("http://localhost:28080/doc/downloadFile/"+fileId[0].substr(4))
+            .then((response) => {
+               console.log(response);
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+            textParts.push('You opened a single file:');
+        } 
     }
 
     if (data.id === ChonkyActions.MoveFiles.id) {
@@ -43,6 +70,11 @@ export const showActionNotification = (data: ChonkyFileActionData) => {
         const countString = `${fileCount} file${fileCount !== 1 ? 's' : ''}`;
         textParts.push(`You deleted ${countString} files.`);
     }
+    if (data.id === ChonkyActions.UploadFiles.id) {
+        const fileCount = data.state.selectedFilesForAction.length;
+        const countString = `${fileCount} file${fileCount !== 1 ? 's' : ''}`;
+        textParts.push(`You deleted ${countString} files.`);
+    }
 
     const text = textParts[0] + textParts.slice(1).join('<br/>');
 
@@ -52,4 +84,6 @@ export const showActionNotification = (data: ChonkyFileActionData) => {
         theme: 'relax',
         timeout: 3000,
     }).show();
+
+  
 };

@@ -4,17 +4,16 @@
  * @license MIT
  */
 
-import React from 'react';
-import { Title } from '../components/Title';
-import { DemoComponent } from '../demo/demo-component';
-
-export interface DemoProps {}
-
-export const Demo: React.FC<DemoProps> = (props) => {
-    return (
-        <>
-            <Title>Try it out</Title>
-            <DemoComponent />
-        </>
-    );
-};
+ import React from 'react';
+ import { DemoComponent } from '../demo/demo-component';
+ import Container from "@material-ui/core/Container";
+ 
+ 
+ export interface DemoProps {}
+ 
+ export const Demo: React.FC<DemoProps> = (props) => {
+     return (
+             <DemoComponent />
+     );
+ };
+ 

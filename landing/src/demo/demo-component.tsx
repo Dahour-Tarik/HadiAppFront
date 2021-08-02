@@ -2,7 +2,7 @@ import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
-import { Theme } from '@material-ui/core/styles/createMuiTheme';
+import { Theme } from '@material-ui/core/styles/createTheme';
 import createStyles from '@material-ui/core/styles/createStyles';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import {
@@ -18,13 +18,15 @@ import {
 import { ChonkyIconFA } from 'chonky-icon-fontawesome';
 import React, { useCallback, useMemo } from 'react';
 import { getButtonStyles } from '../components/LinkButton';
-import { DemoSource2x, MostRecentStorybook } from '../util/links';
 import {
     useCustomFileMap,
     useFileActionHandler,
     useFiles,
     useFolderChain,
 } from './demo-hooks';
+import NavBarBox from '../components/BoxNavBar'
+import { Container } from '@material-ui/core';
+import "./demo-styles.css";
 
 setChonkyDefaults({ iconComponent: ChonkyIconFA });
 
@@ -44,10 +46,10 @@ export const DemoComponent: React.FC = () => {
         setCurrentFolderId,
         deleteFiles,
         moveFiles,
-        createFolder
+        createFolder,
     );
     const fileActions = useMemo(
-        () => [ChonkyActions.CreateFolder, ChonkyActions.DeleteFiles],
+        () => [ChonkyActions.CreateFolder, ChonkyActions.DeleteFiles,ChonkyActions.DownloadFiles,ChonkyActions.UploadFiles],
         []
     );
     const thumbnailGenerator = useCallback(
@@ -60,7 +62,8 @@ export const DemoComponent: React.FC = () => {
 
     return (
         <>
-            <Paper className={classes.demoWrapper} elevation={3}>
+        <NavBarBox/>
+            <Paper  className={classes.demoWrapper} elevation={3}>
                 <FileBrowser
                     instanceId={'chonky-demo'}
                     files={files}
@@ -69,57 +72,29 @@ export const DemoComponent: React.FC = () => {
                     onFileAction={handleFileAction}
                     thumbnailGenerator={thumbnailGenerator}
                 >
+                    <Container style={{marginLeft: '30px'}}>
                     <FileNavbar />
                     <FileToolbar />
+                    <div style={{height: '1500px'}}>   
                     <FileList />
+                    </div>
+                    </Container>
                     <FileContextMenu />
                 </FileBrowser>
             </Paper>
-            <div className={classes.buttonContainer}>
-                <Button
-                    size="small"
-                    className={classes.button}
-                    onClick={resetFileMap}
-                    variant="contained"
-                    startIcon={<FontAwesomeIcon icon={faSyncAlt} fixedWidth={true} />}
-                >
-                    Reset demo
-                </Button>
-                <Button
-                    size="small"
-                    className={classes.button}
-                    href={DemoSource2x.url}
-                    variant="contained"
-                    startIcon={
-                        <FontAwesomeIcon icon={DemoSource2x.icon} fixedWidth={true} />
-                    }
-                >
-                    View source code
-                </Button>
-                <Button
-                    size="small"
-                    className={classes.button}
-                    href={MostRecentStorybook.url}
-                    variant="contained"
-                    startIcon={
-                        <FontAwesomeIcon
-                            icon={MostRecentStorybook.icon}
-                            fixedWidth={true}
-                        />
-                    }
-                >
-                    View storybook
-                </Button>
-            </div>
         </>
     );
 };
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        root:{
+            margin: "0px"
+        },
         demoWrapper: {
-            position: 'relative',
             height: 600,
+            minWidth: 1140,
+            width: "100%",
         },
         buttonContainer: {
             textAlign: 'center',

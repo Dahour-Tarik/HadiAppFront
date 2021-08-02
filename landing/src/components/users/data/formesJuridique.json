@@ -1,0 +1,27 @@
+{
+    "EURL":"EURL  : Entreprise unipersonnelle à responsabilité limitée",
+    "SARL":"SARL  : Société à responsabilité limitée",
+    "SASU":"SASU  : Société par actions simplifiée unipersonnelle",
+    "SAS":"SAS  : Société par actions simplifiée",
+    "Auto Entrepreneur":"Auto Entrepreneur  : Auto Entrepreneur",
+    "Profession Libérale":"Profession Libérale  : Profession Libérale",
+    "SCI":"SCI  : Société civile immobilière",
+    "EI":"EI  : Entreprise Individuelle",
+    "EIRL":"EIRL  : Entreprise individuelle à responsabilité limitée (01.01.2010)",
+    "SCM":"SCM  : Société civile de moyens",
+    "Association":"Association  : Association",
+    "SELARL":"SELARL  : Société d'exercice libéral à responsabilité limitée",
+    "SELAS":"SELAS  : Société d'exercice libéral par actions simplifiée",
+    "SELAFA":"SELAFA  : Société d'exercice libéral à forme anonyme",
+    "SELCA":"SELCA  : Société d'exercice libéral en commandite par actions",
+    "EARL":"EARL  : Entreprise agricole à responsabilité limitée",
+    "GAEC":"GAEC  : Groupement agricole d'exploitation en commun",
+    "GEIE":"GEIE  : Groupement européen d'intérêt économique",
+    "GIE":"GIE  : Groupement d'intérêt économique",
+    "SC":"SC  : Société civile",
+    "SCA":"SCA  : Société en commandite par actions",
+    "SCIC":"SCIC  : Société coopérative d'intérêt collectif"
+
+
+
+}

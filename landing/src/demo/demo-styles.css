@@ -1,3 +1,8 @@
+
+.fileListWrapper-1-1-1 {
+    min-height: 300px;
+}
+
 .noty_body {
     font-family: sans-serif;
     line-height: 1.5em;
@@ -16,3 +21,4 @@
     margin-bottom: 4px;
     font-weight: bold;
 }
+

@@ -4,17 +4,19 @@
  * @license MIT
  */
 
-import {
+ import {
     ChonkyActions,
     ChonkyFileActionData,
     FileArray,
     FileData,
     FileHelper,
 } from 'chonky';
+import React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { showActionNotification } from './demo-util';
 import DemoFsMap from './demo.fs_map.json';
+import axios from 'axios';
 
 type CustomFileData = FileData & {
     parentId?: string;
@@ -22,13 +24,36 @@ type CustomFileData = FileData & {
 };
 type CustomFileMap = { [fileId: string]: CustomFileData };
 
+
+
 const RootFolderId = DemoFsMap.rootFolderId;
 const BaseFileMap = (DemoFsMap.fileMap as unknown) as CustomFileMap;
+
+
+// TODO export const modalFile = () => {}
 
 export const useCustomFileMap = () => {
     const [fileMap, setFileMap] = useState(BaseFileMap);
     const [currentFolderId, setCurrentFolderId] = useState(RootFolderId);
-
+    
+      const fetchData = React.useCallback(() => {
+        axios.get("http://localhost:28080/doc/getdocs")
+        .then((response) => {
+            const data: CustomFileMap = response.data.fileMap;
+            const idFolder = response.data.rootFolderId;
+            setFileMap(data);
+            setCurrentFolderId(idFolder);
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+      }, [])
+      
+      React.useEffect(() => {
+        fetchData()
+      }, [fetchData])
+    
+      
     const currentFolderIdRef = useRef(currentFolderId);
     useEffect(() => {
         currentFolderIdRef.current = currentFolderId;
@@ -39,12 +64,21 @@ export const useCustomFileMap = () => {
         setCurrentFolderId(RootFolderId);
     }, []);
 
+
+
     const deleteFiles = useCallback(
         (files: CustomFileData[]) =>
             setFileMap((oldFileMap) => {
                 const newFileMap = { ...oldFileMap };
                 files.map((file) => {
                     delete newFileMap[file.id];
+                    axios.delete("http://localhost:28080/folders/deleteRepo/"+file.id)
+                    .then((response) => {
+                       console.log(response);
+                    })
+                    .catch(error => {
+                        console.error('There was an error!', error);
+                    });
                     if (file.parentId) {
                         const parent = newFileMap[file.parentId]!;
                         const newChildrenIds = parent.childrenIds!.filter(
@@ -71,7 +105,6 @@ export const useCustomFileMap = () => {
         ) =>
             setFileMap((oldFileMap) => {
                 const newFileMap = { ...oldFileMap };
-
                 const moveFileIds = new Set(files.map((f) => f.id));
                 const newSourceChildrenIds = source.childrenIds!.filter(
                     (id) => !moveFileIds.has(id)
@@ -91,6 +124,13 @@ export const useCustomFileMap = () => {
                     childrenCount: newDestinationChildrenIds.length,
                 };
                 files.map((file) => {
+                    axios.put("http://localhost:28080/folders/moveFolder/"+file.id+"/"+destination.id)
+                    .then((response) => {
+                       console.log(response);
+                    })
+                    .catch(error => {
+                        console.error('There was an error!', error);
+                    });
                     newFileMap[file.id] = {
                         ...file,
                         parentId: destination.id,
@@ -102,30 +142,89 @@ export const useCustomFileMap = () => {
         []
     );
 
-    const idCounter = useRef(0);
+    //const idCounter = useRef(0);
     const createFolder = useCallback(
         (folderName: string) =>
             setFileMap((oldFileMap) => {
+                console.log(oldFileMap);
                 const newFileMap = { ...oldFileMap };
-                const newFolderId = `new-folder-${idCounter.current++}`;
-                newFileMap[newFolderId] = {
-                    id: newFolderId,
+                axios.post("http://localhost:28080/folders/creeRepo", {
                     name: folderName,
-                    isDir: true,
-                    modDate: new Date(),
-                    parentId: currentFolderIdRef.current,
-                    childrenIds: [],
-                    childrenCount: 0,
-                };
-                const parent = newFileMap[currentFolderIdRef.current];
-                newFileMap[currentFolderIdRef.current] = {
-                    ...parent,
-                    childrenIds: [...parent.childrenIds!, newFolderId],
-                };
+                    path: "local/",
+                    dateModified: null,
+                    repDateCreation: new Date(),
+                    parents: {id: currentFolderIdRef.current},
+                    hasChild: null,
+                    filterPath: null,
+                    sizeRepo: 0,
+                    user:  {id: 1},
+                    docs: [],
+                    enfants: [],
+                    historyList: [],
+                    file: false
+                    // TODO: Update userId
+                })
+                .then((response) => {
+                    const newFolderId = response.data.id+'';
+                    newFileMap[newFolderId] = {
+                        id: newFolderId,
+                        name: response.data.name,
+                        isDir: true,
+                        modDate: response.data.repDateCreation,
+                        parentId: currentFolderIdRef.current,
+                        childrenIds: [],
+                        childrenCount: 0,
+                    };
+                    const parent = newFileMap[currentFolderIdRef.current];
+                    newFileMap[currentFolderIdRef.current] = {
+                        ...parent,
+                        childrenIds: [...parent.childrenIds!, newFolderId],
+                    };
+                    //const newId = newFolderId.substr(11);
+                })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+                window.location.reload(false);
                 return newFileMap;
             }),
         [currentFolderIdRef]
     );
+
+    //const uploadFiles =     
+
+  /*  const renameFile = useCallback((
+        file: CustomFileData,
+        newName: string
+    ) => setFileMap((oldFileMap) => {
+        const newFileMap = { ...oldFileMap };
+        newFileMap[file.id].name = newName
+        axios.put("http://localhost:28080/folders//updateName", {
+            name: newName,
+            path: "local/",
+            dateModified: null,
+            repDateCreation: new Date(),
+            parents: {id: currentFolderIdRef.current},
+            hasChild: null,
+            filterPath: null,
+            sizeRepo: 0,
+            user:  {id: 1},
+            docs: [],
+            enfants: [],
+            historyList: [],
+            file: false
+            // TODO: Update userId
+        })
+        .then((response) => {
+                       console.log(response);
+                    })
+        .catch(error => {
+                        console.error('There was an error!', error);
+                    });
+        return newFileMap
+    }),
+    []
+    );*/
 
     return {
         fileMap,
